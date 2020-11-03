@@ -1,0 +1,18 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>Exe</OutputType>
+    <TargetFramework>netcoreapp3.1</TargetFramework>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <PackageReference Include="ClosedXML" Version="0.95.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\ExcelToModelLogic\ExcelToModelLogic.csproj" />
+    <ProjectReference Include="..\ExeTrackerLogic\ExeTrackerLogic.csproj" />
+    <ProjectReference Include="..\XLHelperLib\XLHelperLib.csproj" />
+  </ItemGroup>
+
+</Project>

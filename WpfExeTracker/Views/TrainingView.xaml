@@ -1,0 +1,81 @@
+﻿<UserControl x:Class="WpfExeTracker.Views.TrainingView"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WpfExeTracker.Views"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="357">
+    <Grid Margin="15" Background="White">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="auto"/>
+        </Grid.ColumnDefinitions>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+        </Grid.RowDefinitions>
+        <TextBlock Text="Training Tracker" FontSize="30"
+                   Grid.Row="0" Grid.Column="0"/>
+        <ComboBox Name="cmbTrainingYears" ItemsSource="{Binding Path=TrainingYears}"
+                  Grid.Row="1"  SelectedItem="{Binding Path=SelectedTrainingYear}">
+            <!--
+            <ComboBox.ItemTemplate >
+                <DataTemplate>
+                    <TextBlock Text="abc"/>
+                </DataTemplate>
+            </ComboBox.ItemTemplate>
+            -->
+        </ComboBox>
+        <ComboBox Name="cmbTrainingMonths" ItemsSource="{Binding Path=TrainingMonths}"
+                  Grid.Row="2" SelectedItem="{Binding Path=SelectedTrainingMonth}"/>
+        <ComboBox Name="cmbTrainingDays" ItemsSource="{Binding Path=TrainingDays}"
+                  Grid.Row="3" SelectedItem="{Binding Path=SelectedTrainingDay}"
+                  SelectedIndex="{Binding Path=TrainingPositionInMonth}"/>
+        <!--{Binding Path=TrainingDaysAsString}-->
+        <DatePicker Grid.Row="4" SelectedDate="{Binding Path=CurrentlySelectedTrainingDay}"/>
+        <DataGrid Name ="dgExercises"
+                  AutoGenerateColumns="False"
+                  Grid.Row="5" Grid.Column="0" Margin="5,8,8,2" Padding="3"
+                  ItemsSource="{Binding Path=ExerciseList, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
+                  >
+            <DataGrid.Columns>
+                <DataGridTextColumn Header="Name" 
+                                    Width="auto"
+                                    Binding="{Binding Path=Name}" />
+                <DataGridTextColumn Header="Weight" 
+                                    Width="auto"
+                                    Binding="{Binding Path=Weight}" />
+                <DataGridTextColumn Header="Sets" 
+                                    Width="auto"
+                                    Binding="{Binding Path=Sets}" />
+                <DataGridTextColumn Header="Reps" 
+                                    Width="auto"
+                                    Binding="{Binding Path=Reps}" />
+                <DataGridTextColumn Header="Volume" 
+                                    Width="auto"
+                                    Binding="{Binding Path=ExerciseVolume}" 
+                                    IsReadOnly="True"/>
+                <DataGridTextColumn Header="Type" 
+                                    Width="auto"
+                                    Binding="{Binding Path=Type}" />
+                <DataGridTemplateColumn>
+                    <DataGridTemplateColumn.CellTemplate>
+                        <DataTemplate>
+                            <Button>AAAA</Button>
+                        </DataTemplate>
+                    </DataGridTemplateColumn.CellTemplate>
+                </DataGridTemplateColumn>
+            </DataGrid.Columns>
+        </DataGrid>
+        <StackPanel Orientation="Horizontal" Grid.Row="6" HorizontalAlignment="Center">
+            <Button Margin="3" Padding="5" Command="{Binding Path=SaveCommand}">Save</Button>
+            <Button Margin="3" Padding="5" Command="{Binding Path=ResetCommand}">Reset</Button>
+            <Button Margin="3" Padding="5" Command="{Binding Path=DeleteCommand}">Delete</Button>
+        </StackPanel>
+    </Grid>
+</UserControl>
