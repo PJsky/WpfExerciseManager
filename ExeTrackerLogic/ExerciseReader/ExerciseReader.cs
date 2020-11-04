@@ -26,6 +26,13 @@ namespace ExeTrackerLogic.ExcersizeReader
             return exercisesByType;
         }
 
+        //Overload for training list
+        public static List<ExerciseModel> GetByType(List<TrainingModel> trainingList, string type)
+        {
+            return GetFromTrainingList(trainingList)
+                .Where(e => e.Type == type).ToList();
+        }
+
         //Returns a list of best weights achieved on a given exercises for each Sets x Reps pattern
         public static List<ExerciseModel> GetExerciseBest(List<TrainingModel> trainingList, string exerciseName)
         {

@@ -26,8 +26,6 @@ namespace WpfExeTracker
         public MainWindow()
         {
             InitializeComponent();
-            //ViewModel = new EmployeeViewModel();
-            //this.DataContext = ViewModel;
             trainingViewModel = new TrainingViewModel();
             this.DataContext = trainingViewModel;
 

@@ -1,5 +1,4 @@
-﻿using ExeTrackerLogic.Models;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -17,11 +16,11 @@ using System.Windows.Shapes;
 namespace WpfExeTracker.Views
 {
     /// <summary>
-    /// Interaction logic for TrainingView.xaml
+    /// Interaction logic for ExerciseLookupView.xaml
     /// </summary>
-    public partial class TrainingView : UserControl
+    public partial class ExerciseLookupView : UserControl
     {
-        public TrainingView()
+        public ExerciseLookupView()
         {
             InitializeComponent();
         }

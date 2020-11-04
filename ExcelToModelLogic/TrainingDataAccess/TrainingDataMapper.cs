@@ -186,9 +186,9 @@ namespace ExcelToModelLogic.TrainingDataAccess
         }
 
         //Refine it later to be more optimized. Make it react to changes in Date, and exercises
-        public static void UpdateTraining(TrainingModel training, XLWorkbook workbook, int position) 
+        public static void UpdateTraining(TrainingModel training, XLWorkbook workbook, int month, int position) 
         {
-            var worksheetHandler = new _WorksheetHandler(workbook, training.TrainingDay.Month.ToString());
+            var worksheetHandler = new _WorksheetHandler(workbook, month.ToString());
             var startingRow = new TableReader().GetTableStart(worksheetHandler.Worksheet, position);
             DeleteTraining(worksheetHandler.Worksheet, position);
             var tbMaker = new TableMaker(worksheetHandler.Worksheet);
@@ -196,8 +196,38 @@ namespace ExcelToModelLogic.TrainingDataAccess
             foreach (ExerciseModel exercise in training.Exercises)
                 exerciesesData.Add(new string[] { exercise.Name, exercise.Weight.ToString(), exercise.Sets.ToString(),
                                          exercise.Reps.ToString(), exercise.ExerciseVolume.ToString(), exercise.Type});
-
             tbMaker.InsertTable(startingRow, new string[] { "Exercise", "Weight", "Sets", "Reps", "Volume", "Type" }, training.TrainingDay.Date, exerciesesData);
+        }
+
+        /// <summary>
+        /// Automaticlly saves workbook because it has to work on two files at once
+        public static void UpdateTraining(TrainingModel training, int year, int month, int position, string folderPath, string clientName)
+        {
+            var workbookHandler = new _WorkbookHandler(folderPath, clientName);
+            var workbook = workbookHandler.getWorkbook(year);
+            var worksheetHandler = new _WorksheetHandler(workbook, month.ToString());
+            var startingRow = new TableReader().GetTableStart(worksheetHandler.Worksheet, position);
+            DeleteTraining(worksheetHandler.Worksheet, position);
+            workbook.Save();
+            var tbMaker = new TableMaker(worksheetHandler.Worksheet);
+            List<string[]> exerciesesData = new List<string[]>();
+            foreach (ExerciseModel exercise in training.Exercises)
+                exerciesesData.Add(new string[] { exercise.Name, exercise.Weight.ToString(), exercise.Sets.ToString(),
+                                         exercise.Reps.ToString(), exercise.ExerciseVolume.ToString(), exercise.Type});
+            //Insert table in place of update one if same worksheet
+            //Otherwise create one in a different one after deleting it in the starting position
+            if (training.TrainingDay.Year == year && training.TrainingDay.Month == month)
+                tbMaker.InsertTable(startingRow, new string[] { "Exercise", "Weight", "Sets", "Reps", "Volume", "Type" }, training.TrainingDay.Date, exerciesesData);
+            else
+            {
+                workbook = workbookHandler.getWorkbook(training.TrainingDay.Date);
+                worksheetHandler.Workbook = workbook;
+                worksheetHandler.SheetName = training.TrainingDay.Month.ToString();
+                worksheetHandler.GetOrCreateWorksheet();
+                tbMaker = new TableMaker(worksheetHandler.Worksheet);
+                tbMaker.CreateTable(new string[] { "Exercise", "Weight", "Sets", "Reps", "Volume", "Type" }, training.TrainingDay.Date, exerciesesData);
+            }
+            workbook.Save();
         }
 
     }

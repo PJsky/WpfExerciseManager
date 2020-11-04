@@ -9,6 +9,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using WpfExeTracker.AdditionalWindows;
 using WpfExeTracker.Commands;
 using XLHelperLib.WorkbookHandler;
 using XLHelperLib.WorksheetHandler;
@@ -36,7 +37,10 @@ namespace WpfExeTracker.ViewModels
             saveCommand = new RelayCommand(Save);
             deleteCommand = new RelayCommand(Delete);
             resetCommand = new RelayCommand(Reset);
+            openExerciseLookupCommand = new RelayCommand(OpenExerciseLookup);
+            exerciseLookupWindow = new ExerciseLookupWindow();
         }
+
         #region Properties
         private ObservableCollection<ExerciseModel> exerciseList;
         public ObservableCollection<ExerciseModel> ExerciseList
@@ -104,7 +108,12 @@ namespace WpfExeTracker.ViewModels
                 //trainingList.Add(new TrainingModel(10, 10, 10));
                 return TrainingList.Select(t => t.TrainingDay).ToList(); 
             }
-            set { trainingDays = value; OnPropertyChanged("TrainingDays"); OnPropertyChanged("SelectedTrainingDay");}
+            set { 
+                trainingDays = value;
+                OnPropertyChanged("TrainingDays");
+                OnPropertyChanged("SelectedTrainingDay");
+                OnPropertyChanged("TrainingDaysAsString");
+            }
         }
 
         public List<string> TrainingDaysAsString
@@ -112,8 +121,14 @@ namespace WpfExeTracker.ViewModels
             get
             {
                 List<string> trainingStrings = TrainingDays.Select(x => x.ToString()).ToList();
-                trainingStrings[trainingStrings.Count() - 1] = "<NEW>";
+                //trainingStrings[trainingStrings.Count() - 1] = "<NEW>";
                 return trainingStrings;
+            }
+            set { 
+                trainingDays = value.Select(d => DateTime.Parse(d)).ToList();
+                OnPropertyChanged("TrainingDays");
+                OnPropertyChanged("SelectedTrainingDay");
+                OnPropertyChanged("TrainingDaysAsString"); 
             }
         }
 
@@ -123,6 +138,21 @@ namespace WpfExeTracker.ViewModels
         {
             get { return selectedTrainingDay; }
             set { selectedTrainingDay = value;
+                OnPropertyChanged("SelectedTrainingDay");
+                OnPropertyChanged("ExerciseList");
+                ExerciseList = new ObservableCollection<ExerciseModel>(TrainingList[TrainingPositionInMonth].Exercises);
+                CurrentlySelectedTrainingDay = SelectedTrainingDay;
+            }
+        }
+
+        private string selectedTrainingDayAsString;
+
+        public string SelectedTrainingDayAsString
+        {
+            get { return selectedTrainingDayAsString; }
+            set
+            {
+                selectedTrainingDay = DateTime.Parse(value);
                 OnPropertyChanged("SelectedTrainingDay");
                 OnPropertyChanged("ExerciseList");
                 ExerciseList = new ObservableCollection<ExerciseModel>(TrainingList[TrainingPositionInMonth].Exercises);
@@ -143,7 +173,8 @@ namespace WpfExeTracker.ViewModels
 
         public int TrainingPositionInMonth
         {
-            get { 
+            get {
+                if (trainingPositionInMonth < 0) return 0;
                 return trainingPositionInMonth; 
             }   
             set { trainingPositionInMonth = value; OnPropertyChanged("TrainingPositionInMonth"); }
@@ -156,6 +187,14 @@ namespace WpfExeTracker.ViewModels
             get { return currentlySelectedTrainingDay; }
             set { currentlySelectedTrainingDay = value; OnPropertyChanged("CurrentlySelectedTrainingDay"); }
         }
+        private ExerciseModel currentlySelectedExercise;
+
+        public ExerciseModel CurrentlySelectedExercise
+        {
+            get { return currentlySelectedExercise; }
+            set { currentlySelectedExercise = value; OnPropertyChanged("CurrentlySelectedExercise");  }
+        }
+
 
         //Command properties
         private RelayCommand saveCommand;
@@ -177,10 +216,16 @@ namespace WpfExeTracker.ViewModels
         public RelayCommand ResetCommand
         {
             get { return resetCommand; }
-            set { resetCommand = value; }
         }
 
+        private RelayCommand openExerciseLookupCommand;
+        public RelayCommand OpenExerciseLookupCommand
+        {
+            get { return openExerciseLookupCommand; }
+        }
 
+        //Property with a binded exercise lookup window
+        public ExerciseLookupWindow exerciseLookupWindow { get; set; }
         #endregion
 
 
@@ -191,7 +236,8 @@ namespace WpfExeTracker.ViewModels
             TrainingMonths = TrainingDataMapper.GetTrainingMonths(workbookHandler.getWorkbook(SelectedTrainingYear));
             SelectedTrainingMonth = TrainingMonths[0];
             TrainingDays = TrainingList.Select(t => t.TrainingDay).ToList();
-            SelectedTrainingDay = TrainingDays[0];
+            //SelectedTrainingDay = TrainingDays[0];
+            SelectedTrainingDayAsString = TrainingDaysAsString[0];
             ExerciseList = new ObservableCollection<ExerciseModel>(TrainingList[TrainingPositionInMonth].Exercises);
             CurrentlySelectedTrainingDay = DateTime.Now;
         }
@@ -204,7 +250,8 @@ namespace WpfExeTracker.ViewModels
             {
                 MessageBoxResult result = MessageBox.Show("Do you want to update this training session?", "Update", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.No) return;
-                TrainingDataMapper.UpdateTraining(new TrainingModel(CurrentlySelectedTrainingDay, ExerciseList.ToList()), workbook, TrainingPositionInMonth + 1);
+                //TrainingDataMapper.UpdateTraining(new TrainingModel(CurrentlySelectedTrainingDay, ExerciseList.ToList()), workbook, TrainingPositionInMonth + 1);
+                TrainingDataMapper.UpdateTraining(new TrainingModel(CurrentlySelectedTrainingDay, ExerciseList.ToList()), SelectedTrainingYear, SelectedTrainingMonth,TrainingPositionInMonth + 1 , folderPath, "kk");
                 MessageBox.Show("A training has been updated");
             }
             else
@@ -214,9 +261,8 @@ namespace WpfExeTracker.ViewModels
                 TrainingDataMapper.AddTraining(new TrainingModel(CurrentlySelectedTrainingDay, ExerciseList.ToList()), workbook);
                 TrainingYears = TrainingDataMapper.GetTrainingYears(folderPath, "kk");
                 MessageBox.Show("A new training has been saved");
+                workbook.Save();
             }
-            workbook.Save();
-
         }
 
         private void Delete()
@@ -241,6 +287,15 @@ namespace WpfExeTracker.ViewModels
             MessageBoxResult result = MessageBox.Show("Do you want to reset datagrid exercise list?","Reset", MessageBoxButton.YesNo);
             if(result == MessageBoxResult.Yes)
                 ExerciseList = new ObservableCollection<ExerciseModel>(TrainingList[TrainingPositionInMonth].Exercises);
+        }
+
+        private void OpenExerciseLookup()
+        {
+            //exerciseLookupWindow.exerciseLookupViewModel.SelectedExercise = CurrentlySelectedExercise
+            if(!exerciseLookupWindow.IsLoaded)
+                exerciseLookupWindow = new ExerciseLookupWindow();
+            exerciseLookupWindow.ChangeSelectedExercise(CurrentlySelectedExercise, folderPath, "kk");
+            exerciseLookupWindow.Show();
         }
 
     }
