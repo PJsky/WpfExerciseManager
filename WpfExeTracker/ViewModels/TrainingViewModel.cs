@@ -19,7 +19,7 @@ namespace WpfExeTracker.ViewModels
     class TrainingViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        private string folderPath = @"C:\Users\RAMAND\Desktop\c#_trainingTracker";
+        //private string folderPath = @"C:\Users\RAMAND\Desktop\c#_trainingTracker";
         public _WorkbookHandler workbookHandler;
         public _WorksheetHandler worksheetHandler;
 
@@ -30,18 +30,33 @@ namespace WpfExeTracker.ViewModels
         }
         public TrainingViewModel()
         {
-            workbookHandler = new _WorkbookHandler(folderPath, "kk");
-            var workbook = workbookHandler.getWorkbook();
-            worksheetHandler = new _WorksheetHandler(workbook, DateTime.Now.Month.ToString());
+            folderPath = @"C:\Users\RAMAND\Desktop\c#_trainingTracker";
+            clientName = "kk";
             LoadData();
             saveCommand = new RelayCommand(Save);
             deleteCommand = new RelayCommand(Delete);
             resetCommand = new RelayCommand(Reset);
             openExerciseLookupCommand = new RelayCommand(OpenExerciseLookup);
             exerciseLookupWindow = new ExerciseLookupWindow();
+            openSettingsWindowCommand = new RelayCommand(OpenSettingsWindow);
+            settingsWindow = new SettingsWindow(FolderPath, ChangeFolderPath, clientName, ChangeClientName);
         }
 
         #region Properties
+        private string folderPath;
+        public string FolderPath
+        {
+            get { return folderPath; }
+            set { folderPath = value; LoadData(); OnPropertyChanged("FolderPath"); }
+        }
+
+        private string clientName;
+        public string ClientName
+        {
+            get { return clientName; }
+            set { clientName = value; LoadData(); OnPropertyChanged("ClientName"); }
+        }
+
         private ObservableCollection<ExerciseModel> exerciseList;
         public ObservableCollection<ExerciseModel> ExerciseList
         {
@@ -116,7 +131,7 @@ namespace WpfExeTracker.ViewModels
             }
         }
 
-        public List<string> TrainingDaysAsString
+       /* public List<string> TrainingDaysAsString
         {
             get
             {
@@ -130,7 +145,7 @@ namespace WpfExeTracker.ViewModels
                 OnPropertyChanged("SelectedTrainingDay");
                 OnPropertyChanged("TrainingDaysAsString"); 
             }
-        }
+        }*/
 
         private DateTime selectedTrainingDay;
 
@@ -145,7 +160,7 @@ namespace WpfExeTracker.ViewModels
             }
         }
 
-        private string selectedTrainingDayAsString;
+        /*private string selectedTrainingDayAsString;
 
         public string SelectedTrainingDayAsString
         {
@@ -158,7 +173,7 @@ namespace WpfExeTracker.ViewModels
                 ExerciseList = new ObservableCollection<ExerciseModel>(TrainingList[TrainingPositionInMonth].Exercises);
                 CurrentlySelectedTrainingDay = SelectedTrainingDay;
             }
-        }
+        }*/
 
         public List<TrainingModel> TrainingList
         {
@@ -224,20 +239,30 @@ namespace WpfExeTracker.ViewModels
             get { return openExerciseLookupCommand; }
         }
 
-        //Property with a binded exercise lookup window
+        private RelayCommand openSettingsWindowCommand;
+        public RelayCommand OpenSettingsWindowCommand
+        {
+            get { return openSettingsWindowCommand; }
+        }
+
+        //Property with a binded exercise lookup window and settings window
         public ExerciseLookupWindow exerciseLookupWindow { get; set; }
+        public SettingsWindow settingsWindow { get; set; }
         #endregion
 
 
         private void LoadData()
         {
-            TrainingYears = TrainingDataMapper.GetTrainingYears(folderPath, "kk");
+            workbookHandler = new _WorkbookHandler(folderPath, clientName);
+            var workbook = workbookHandler.getWorkbook();
+            worksheetHandler = new _WorksheetHandler(workbook, DateTime.Now.Month.ToString());
+            TrainingYears = TrainingDataMapper.GetTrainingYears(folderPath, clientName);
             SelectedTrainingYear = TrainingYears[0];
             TrainingMonths = TrainingDataMapper.GetTrainingMonths(workbookHandler.getWorkbook(SelectedTrainingYear));
             SelectedTrainingMonth = TrainingMonths[0];
             TrainingDays = TrainingList.Select(t => t.TrainingDay).ToList();
-            //SelectedTrainingDay = TrainingDays[0];
-            SelectedTrainingDayAsString = TrainingDaysAsString[0];
+            SelectedTrainingDay = TrainingDays[0];
+            //SelectedTrainingDayAsString = TrainingDaysAsString[0];
             ExerciseList = new ObservableCollection<ExerciseModel>(TrainingList[TrainingPositionInMonth].Exercises);
             CurrentlySelectedTrainingDay = DateTime.Now;
         }
@@ -296,6 +321,22 @@ namespace WpfExeTracker.ViewModels
                 exerciseLookupWindow = new ExerciseLookupWindow();
             exerciseLookupWindow.ChangeSelectedExercise(CurrentlySelectedExercise, folderPath, "kk");
             exerciseLookupWindow.Show();
+        }
+
+        private void OpenSettingsWindow() {
+            if (!settingsWindow.IsLoaded)
+                settingsWindow = new SettingsWindow(FolderPath, ChangeFolderPath, clientName, ChangeClientName);
+            settingsWindow.Show();
+        }
+
+        private void ChangeFolderPath(string newFolderPath)
+        {
+            FolderPath = newFolderPath;
+        }
+
+        private void ChangeClientName(string newClientName)
+        {
+            ClientName = newClientName;
         }
 
     }

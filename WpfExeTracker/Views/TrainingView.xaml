@@ -18,22 +18,35 @@
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
             <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
+            <RowDefinition Height="auto"/>
         </Grid.RowDefinitions>
         <TextBlock Text="Training Tracker" FontSize="30"
                    Grid.Row="0" Grid.Column="0"/>
+        <TextBlock Text="Year:"
+                   Grid.Row="1" Grid.Column="0"/>
         <ComboBox Name="cmbTrainingYears" ItemsSource="{Binding Path=TrainingYears}"
-                  Grid.Row="1"  SelectedItem="{Binding Path=SelectedTrainingYear}">
+                  Grid.Row="2"  SelectedItem="{Binding Path=SelectedTrainingYear}">
         </ComboBox>
+        <TextBlock Text="Month:"
+                   Grid.Row="3" Grid.Column="0"/>
         <ComboBox Name="cmbTrainingMonths" ItemsSource="{Binding Path=TrainingMonths}"
-                  Grid.Row="2" SelectedItem="{Binding Path=SelectedTrainingMonth}"/>
-        <ComboBox Name="cmbTrainingDays" ItemsSource="{Binding Path=TrainingDaysAsString}"
-                  Grid.Row="3" SelectedItem="{Binding Path=SelectedTrainingDayAsString}"
+                  Grid.Row="4" SelectedItem="{Binding Path=SelectedTrainingMonth}"/>
+        <TextBlock Text="Date of Training:"
+                   Grid.Row="5" Grid.Column="0"/>
+        <ComboBox Name="cmbTrainingDays" ItemsSource="{Binding Path=TrainingDays}"
+                  Grid.Row="6" SelectedItem="{Binding Path=SelectedTrainingDay}"
                   SelectedIndex="{Binding Path=TrainingPositionInMonth}"/>
         <!--{Binding Path=TrainingDaysAsString}-->
-        <DatePicker Grid.Row="4" SelectedDate="{Binding Path=CurrentlySelectedTrainingDay}"/>
+        <TextBlock Text="Date to save as:"
+                   Grid.Row="8" Grid.Column="0"/>
+        <DatePicker Grid.Row="9" SelectedDate="{Binding Path=CurrentlySelectedTrainingDay}"/>
         <DataGrid Name ="dgExercises"
                   AutoGenerateColumns="False"
-                  Grid.Row="5" Grid.Column="0" Margin="5,8,8,2" Padding="3"
+                  Grid.Row="7" Grid.Column="0" Margin="5,8,8,2" Padding="3"
                   ItemsSource="{Binding Path=ExerciseList, UpdateSourceTrigger=PropertyChanged, Mode=TwoWay}" 
                   SelectedItem="{Binding Path=CurrentlySelectedExercise}"
                   >
@@ -68,10 +81,17 @@
                 </DataGridTemplateColumn>
             </DataGrid.Columns>
         </DataGrid>
-        <StackPanel Orientation="Horizontal" Grid.Row="6" HorizontalAlignment="Center">
+        <StackPanel Orientation="Horizontal" Grid.Row="10" HorizontalAlignment="Center">
             <Button Margin="3" Padding="5" Command="{Binding Path=SaveCommand}">Save</Button>
             <Button Margin="3" Padding="5" Command="{Binding Path=ResetCommand}">Reset</Button>
             <Button Margin="3" Padding="5" Command="{Binding Path=DeleteCommand}">Delete</Button>
+            <TextBlock Text="{Binding Path=FolderPath}"/>
         </StackPanel>
+
+        <Button Margin="3" Padding="5" 
+                Command="{Binding Path=OpenSettingsWindowCommand}"
+                Grid.Row="11"
+                >Settings</Button>
+
     </Grid>
 </UserControl>

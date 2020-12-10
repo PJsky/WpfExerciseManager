@@ -96,5 +96,7 @@ namespace WpfExeTracker.ViewModels
             var exercises = _ExerciseReader.GetExerciseHistory(TrainingList, SelectedExercise.Name);
             ExerciseList = new ObservableCollection<ExerciseModel>(exercises);
         }
+
+
     }
 }

@@ -25,5 +25,12 @@ namespace WpfExeTracker.Views
         {
             InitializeComponent();
         }
+
+        /*private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            var dialog = new System.Windows.Forms.FolderBrowserDialog();
+            System.Windows.Forms.DialogResult result = dialog.ShowDialog();
+            textBox.TextProperty = dialog.SelectedPath;
+        }*/
     }
 }
