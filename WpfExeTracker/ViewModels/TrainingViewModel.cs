@@ -11,6 +11,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using WpfExeTracker.AdditionalWindows;
 using WpfExeTracker.Commands;
+using WpfExeTracker.SettingsHelpers;
 using XLHelperLib.WorkbookHandler;
 using XLHelperLib.WorksheetHandler;
 
@@ -19,7 +20,6 @@ namespace WpfExeTracker.ViewModels
     class TrainingViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        //private string folderPath = @"C:\Users\RAMAND\Desktop\c#_trainingTracker";
         public _WorkbookHandler workbookHandler;
         public _WorksheetHandler worksheetHandler;
 
@@ -30,8 +30,7 @@ namespace WpfExeTracker.ViewModels
         }
         public TrainingViewModel()
         {
-            folderPath = @"C:\Users\RAMAND\Desktop\c#_trainingTracker";
-            clientName = "kk";
+            LoadSettingsFromFile();
             LoadData();
             saveCommand = new RelayCommand(Save);
             deleteCommand = new RelayCommand(Delete);
@@ -47,21 +46,19 @@ namespace WpfExeTracker.ViewModels
         public string FolderPath
         {
             get { return folderPath; }
-            set { folderPath = value; LoadData(); OnPropertyChanged("FolderPath"); }
+            set { folderPath = value; SaveSettingsToFile(); LoadData(); OnPropertyChanged("FolderPath"); }
         }
 
         private string clientName;
         public string ClientName
         {
             get { return clientName; }
-            set { clientName = value; LoadData(); OnPropertyChanged("ClientName"); }
+            set { clientName = value; SaveSettingsToFile(); LoadData(); OnPropertyChanged("ClientName"); }
         }
 
         private ObservableCollection<ExerciseModel> exerciseList;
         public ObservableCollection<ExerciseModel> ExerciseList
         {
-            //get { return new ObservableCollection<ExerciseModel>(TrainingDataMapper.GetMonthTrainings(workbookHandler.getWorkbook(SelectedTrainingYear), SelectedTrainingMonth)[TrainingPositionInMonth].Exercises); }
-            //get { return new ObservableCollection<ExerciseModel>(TrainingList[TrainingPositionInMonth].Exercises); }
             get { return exerciseList; }
             set { exerciseList = value; OnPropertyChanged("ExerciseList"); }
         }
@@ -119,8 +116,6 @@ namespace WpfExeTracker.ViewModels
         public List<DateTime> TrainingDays
         {
             get {
-                //var trainingList = TrainingDataMapper.GetMonthTrainings(workbookHandler.getWorkbook(SelectedTrainingYear), SelectedTrainingMonth);
-                //trainingList.Add(new TrainingModel(10, 10, 10));
                 return TrainingList.Select(t => t.TrainingDay).ToList(); 
             }
             set { 
@@ -130,23 +125,6 @@ namespace WpfExeTracker.ViewModels
                 OnPropertyChanged("TrainingDaysAsString");
             }
         }
-
-       /* public List<string> TrainingDaysAsString
-        {
-            get
-            {
-                List<string> trainingStrings = TrainingDays.Select(x => x.ToString()).ToList();
-                //trainingStrings[trainingStrings.Count() - 1] = "<NEW>";
-                return trainingStrings;
-            }
-            set { 
-                trainingDays = value.Select(d => DateTime.Parse(d)).ToList();
-                OnPropertyChanged("TrainingDays");
-                OnPropertyChanged("SelectedTrainingDay");
-                OnPropertyChanged("TrainingDaysAsString"); 
-            }
-        }*/
-
         private DateTime selectedTrainingDay;
 
         public DateTime SelectedTrainingDay
@@ -159,21 +137,6 @@ namespace WpfExeTracker.ViewModels
                 CurrentlySelectedTrainingDay = SelectedTrainingDay;
             }
         }
-
-        /*private string selectedTrainingDayAsString;
-
-        public string SelectedTrainingDayAsString
-        {
-            get { return selectedTrainingDayAsString; }
-            set
-            {
-                selectedTrainingDay = DateTime.Parse(value);
-                OnPropertyChanged("SelectedTrainingDay");
-                OnPropertyChanged("ExerciseList");
-                ExerciseList = new ObservableCollection<ExerciseModel>(TrainingList[TrainingPositionInMonth].Exercises);
-                CurrentlySelectedTrainingDay = SelectedTrainingDay;
-            }
-        }*/
 
         public List<TrainingModel> TrainingList
         {
@@ -262,7 +225,6 @@ namespace WpfExeTracker.ViewModels
             SelectedTrainingMonth = TrainingMonths[0];
             TrainingDays = TrainingList.Select(t => t.TrainingDay).ToList();
             SelectedTrainingDay = TrainingDays[0];
-            //SelectedTrainingDayAsString = TrainingDaysAsString[0];
             ExerciseList = new ObservableCollection<ExerciseModel>(TrainingList[TrainingPositionInMonth].Exercises);
             CurrentlySelectedTrainingDay = DateTime.Now;
         }
@@ -275,7 +237,6 @@ namespace WpfExeTracker.ViewModels
             {
                 MessageBoxResult result = MessageBox.Show("Do you want to update this training session?", "Update", MessageBoxButton.YesNo);
                 if (result == MessageBoxResult.No) return;
-                //TrainingDataMapper.UpdateTraining(new TrainingModel(CurrentlySelectedTrainingDay, ExerciseList.ToList()), workbook, TrainingPositionInMonth + 1);
                 TrainingDataMapper.UpdateTraining(new TrainingModel(CurrentlySelectedTrainingDay, ExerciseList.ToList()), SelectedTrainingYear, SelectedTrainingMonth,TrainingPositionInMonth + 1 , folderPath, "kk");
                 MessageBox.Show("A training has been updated");
             }
@@ -316,7 +277,6 @@ namespace WpfExeTracker.ViewModels
 
         private void OpenExerciseLookup()
         {
-            //exerciseLookupWindow.exerciseLookupViewModel.SelectedExercise = CurrentlySelectedExercise
             if(!exerciseLookupWindow.IsLoaded)
                 exerciseLookupWindow = new ExerciseLookupWindow();
             exerciseLookupWindow.ChangeSelectedExercise(CurrentlySelectedExercise, folderPath, "kk");
@@ -337,6 +297,16 @@ namespace WpfExeTracker.ViewModels
         private void ChangeClientName(string newClientName)
         {
             ClientName = newClientName;
+        }
+
+        private void SaveSettingsToFile()
+        {
+            SettingsHelper.SaveSetting(folderPath, clientName);
+        }
+
+        private void LoadSettingsFromFile()
+        {
+            SettingsHelper.LoadSettings(ref folderPath, ref clientName);
         }
 
     }

@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:WpfExeTracker.AdditionalWindows"
         xmlns:vw="clr-namespace:WpfExeTracker.Views"
         mc:Ignorable="d"
-        Title="ExerciseLookupWindow" Height="200" Width="400">
+        Title="ExerciseLookupWindow" Height="230" Width="400">
     <Grid>
         <vw:SettingsView/>
     </Grid>

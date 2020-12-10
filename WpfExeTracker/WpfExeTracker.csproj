@@ -80,6 +80,7 @@
       <DependentUpon>ExerciseLookupWindow.xaml</DependentUpon>
     </Compile>
     <Compile Include="Commands\RelayCommand.cs" />
+    <Compile Include="SettingsHelpers\SettingsHelper.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\ExerciseLookupViewModel.cs" />
     <Compile Include="ViewModels\TrainingViewModel.cs" />
